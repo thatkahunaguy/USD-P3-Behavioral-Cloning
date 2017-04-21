@@ -10,9 +10,9 @@ from keras.layers import Flatten, Dense, Lambda, Dropout
 
 # set a path and data file so we can move between small test files
 # and full training data sets easily
-path = './training_data/'
+path = './data/'
 # driving_log.csv or test_log.csv
-data_file = 'test_log.csv'
+data_file = 'driving_log.csv'
 
 samples = []
 file = path + data_file
@@ -49,16 +49,22 @@ def generator(samples, batch_size=32):
             images = []
             angles = []
             for batch_sample in batch_samples:
+                # add 3 camera images adjusted for camera angle as if centered
+                # camera angle adjustment center, left, right
+                angle_adjustment = [0., 0.25, -0.25]
+                for i in range(0,3):
                 # adjust the filename/path since orig logged on a local machine
                 # filename is the last part of the sample path
-                # TODO eventually will want to add left & right images
-                center_filename = path + 'IMG/' + batch_sample[0].split('/')[-1]
-                center_image = cv2.imread(center_filename)
-                # TODO remove
-                # center_image = image_adjust(center_image)
-                center_angle = float(batch_sample[3])
-                images.append(center_image)
-                angles.append(center_angle)
+                    file = path + 'IMG/' + batch_sample[i].split('/')[-1]
+                    image = cv2.imread(file)
+                    angle = float(batch_sample[3]) + angle_adjustment[i]
+                    images.append(image)
+                    angles.append(angle)
+                    # augment with a flipped version of this image since track
+                    # is primarily left turning
+                    image = image[:, ::-1, :]
+                    images.append(image)
+                    angles.append(-angle)
 
             # convert image and angle data to np arrays as reqd by Keras
             X_train = np.array(images)
@@ -125,5 +131,5 @@ model.fit_generator(train_generator,
                     samples_per_epoch=len(train_samples),
                     validation_data=validation_generator,
                     nb_val_samples=len(validation_samples),
-                    nb_epoch=3)
+                    nb_epoch=8)
 model.save('model.h5')
