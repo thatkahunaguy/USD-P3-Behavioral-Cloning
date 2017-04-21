@@ -9,7 +9,7 @@ from keras.layers import Cropping2D, Conv2D, MaxPooling2D
 from keras.layers import Flatten, Dense, Lambda, Dropout
 
 samples = []
-with open('./training_data/test_log.csv') as csvfile:
+with open('./data/driving_log.csv') as csvfile:
     reader = csv.reader(csvfile)
     for line in reader:
         # we only need the first 4 columns of data for this project
@@ -17,8 +17,13 @@ with open('./training_data/test_log.csv') as csvfile:
         data = line[0:4]
         samples.append(data)
 
+# The sample data includes a line of column headers in the file, delete this
+# TODO remove if collecting your own data as the headers dont get generated
+del samples[0]
+
 # TODO: only for debug, show image shape
-file = './training_data/IMG/'+samples[0][0].split('/')[-1]
+file = './data/IMG/'+samples[1][0].split('/')[-1]
+print("test file is: ", file)
 image = cv2.imread(file)
 print("Image shape is: ", image.shape)
 
@@ -40,7 +45,7 @@ def generator(samples, batch_size=32):
                 # adjust the filename/path since orig logged on a local machine
                 # filename is the last part of the sample path
                 # TODO eventually will want to add left & right images
-                center_filename = './training_data/IMG/'+batch_sample[0].split('/')[-1]
+                center_filename = './data/IMG/'+batch_sample[0].split('/')[-1]
                 center_image = cv2.imread(center_filename)
                 # TODO remove
                 # center_image = image_adjust(center_image)
