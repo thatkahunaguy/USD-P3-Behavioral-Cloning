@@ -15,12 +15,26 @@ from io import BytesIO
 from keras.models import load_model
 import h5py
 from keras import __version__ as keras_version
+import cv2
 
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
 prev_image_array = None
 
+def image_adjust(image, BGR=True):
+    '''
+    Preprocess images: set BGR = False in drive.py as cv2 reads BGR and sim
+    uses RGB
+    '''
+    # blur image as suggested in forums
+    adj_image = cv2.GaussianBlur(image, (3,3), 0)
+    # convert to YUV as suggested in forums
+    if BGR: # used for training since CV2 reads in BGR
+        adj_image = cv2.cvtColor(adj_image, cv2.COLOR_BGR2YUV)
+    else:
+        adj_image = cv2.cvtColor(adj_image, cv2.COLOR_RGB2YUV)
+    return adj_image
 
 class SimplePIController:
     def __init__(self, Kp, Ki):
@@ -61,6 +75,9 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        # Adding this line to add preprocessing blur & YUV not included
+        # in the Keras pipeline
+        image_array = image_adjust(image_array, BGR=False)
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
         throttle = controller.update(float(speed))
