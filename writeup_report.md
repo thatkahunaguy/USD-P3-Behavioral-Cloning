@@ -17,7 +17,7 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 
 [image1]: ./writeup_images/nvidia_arch.png "Model Visualization"
-[image2]: ./writeup_images/flip_all_camera.png "Uncropped Images Augmented"
+[image2]: ./writeup_images/Flip_all_camera.png "Uncropped Images Augmented"
 [image3]: ./writeup_images/crop_flip_all_camera.png "Cropped Images Augmented"
 [image4]: ./writeup_images/recovery.jpg "Recovery Image"
 [image5]: ./writeup_images/yuv.png "Blur & YUV Preprocessing"
